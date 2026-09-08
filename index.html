@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agustín Landriel — DevOps / SysOps</title>
+  <meta name="description" content="Agustín Landriel — DevOps / SysOps. Terraform, Kubernetes, GitOps y seguridad, con TLS real de punta a punta.">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+  <style>
+    :root {
+      --bg: #0B0F14;
+      --surface: #121821;
+      --surface-2: #1A222D;
+      --line: #232D3A;
+      --line-soft: #1B2430;
+      --ink: #E7EDF3;
+      --ink-2: #93A3B5;
+      --ink-3: #5C6B7C;
+      --a: oklch(78% 0.16 155);
+      --a-soft: oklch(24% 0.05 155);
+      --b: oklch(78% 0.13 205);
+      --b-soft: oklch(24% 0.04 205);
+      --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+      --shadow: 0 24px 60px -32px rgba(0,0,0,.7);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      background-image: radial-gradient(600px 300px at 15% -5%, var(--a-soft), transparent 60%),
+                         radial-gradient(600px 300px at 90% 10%, var(--b-soft), transparent 60%);
+      color: var(--ink);
+      font-family: var(--mono);
+      line-height: 1.65;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--b); text-decoration: none; }
+    a:hover { color: var(--a); }
+    h1, h2, h3 { margin: 0; font-family: var(--mono); }
+    p { margin: 0; }
+    ul { margin: 0; padding: 0; list-style: none; }
+    .wrap { max-width: 980px; margin: 0 auto; padding-left: 32px; padding-right: 32px; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3);
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--a); display: inline-block; }
+    .dot.pulse { animation: pulse 2.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 18px; border-radius: 6px; font-size: 13.5px; font-weight: 600;
+      border: 1px solid var(--line); color: var(--ink);
+    }
+    .btn:hover { border-color: var(--ink-2); color: var(--ink); }
+    .btn.primary { background: var(--a); border-color: var(--a); color: #04120B; }
+    .btn.primary:hover { background: oklch(84% 0.16 155); color: #04120B; }
+    .card {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+    }
+    .tag {
+      display: inline-block; padding: 4px 10px; border-radius: 4px;
+      font-size: 12px; color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--line-soft);
+    }
+    .mod-grid {
+      display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px;
+    }
+    .mod-card { padding: 22px; display: flex; flex-direction: column; gap: 10px; }
+    .mod-num { font-size: 12px; color: var(--ink-3); }
+    .mod-title { font-size: 15.5px; font-weight: 700; color: var(--ink); }
+    .mod-desc { font-size: 13.5px; color: var(--ink-2); }
+    .mod-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .skill-group { padding: 20px 22px; }
+    .skill-title { font-size: 12px; color: var(--a); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 12px; }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .term-window { border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--line); }
+    .term-bar { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--surface-2); border-bottom: 1px solid var(--line); }
+    .term-dot { width: 11px; height: 11px; border-radius: 50%; background: #37414D; }
+    .term-body { padding: 28px 26px; background: var(--surface); }
+    .prompt { color: var(--a); }
+    nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; background: rgba(11,15,20,.82); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+    nav .links { display: flex; gap: 20px; font-size: 13px; }
+    section.block { padding-top: 72px; padding-bottom: 72px; }
+    .section-head { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+    .section-title { font-size: 24px; font-weight: 700; color: var(--ink); }
+    .job-list { display: flex; flex-direction: column; gap: 18px; }
+    .job-card { padding: 24px 26px; }
+    .job-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .job-role { font-size: 15.5px; font-weight: 700; color: var(--ink); }
+    .job-role .sep { color: var(--ink-3); font-weight: 400; }
+    .job-company { color: var(--b); }
+    .job-dates { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; }
+    .job-bullets { display: flex; flex-direction: column; gap: 8px; }
+    .job-bullets li { font-size: 13.5px; color: var(--ink-2); padding-left: 18px; position: relative; }
+    .job-bullets li::before { content: "›"; position: absolute; left: 0; color: var(--a); }
+    .job-bullets b { color: var(--ink); font-weight: 600; }
+    .cert-list li { font-size: 13.5px; color: var(--ink-2); padding: 9px 0; border-bottom: 1px solid var(--line-soft); }
+    .cert-list li:last-child { border-bottom: none; }
+    .cert-list b { color: var(--ink); font-weight: 600; }
+    footer { border-top: 1px solid var(--line); padding: 28px 32px; text-align: center; font-size: 12px; color: var(--ink-3); }
+    @media (max-width: 720px) {
+      .wrap { padding-left: 20px; padding-right: 20px; }
+      nav { padding: 14px 20px; }
+      nav .links { gap: 12px; font-size: 11.5px; }
+      .mod-grid { grid-template-columns: 1fr; }
+      .term-body { padding: 22px 18px; }
+      .hero-name { font-size: 26px !important; }
+      .cta-row { flex-direction: column; align-items: stretch; }
+      .cta-row .btn { justify-content: center; }
+      .job-head { flex-direction: column; align-items: flex-start; gap: 4px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="#top" style="color: var(--ink); font-weight: 700; font-size: 13.5px;">agustin@landriel<span class="prompt">:~$</span></a>
+  <div class="links">
+    <a href="#experiencia">./experiencia</a>
+    <a href="#proyecto">./proyecto</a>
+    <a href="#skills">./skills</a>
+    <a href="#contacto">./contacto</a>
+  </div>
+</nav>
+
+<section id="top" class="wrap block" style="padding-top: 64px;">
+  <div class="eyebrow" style="margin-bottom: 22px;">
+    <span class="dot pulse"></span>
+    disponible para trabajar
+  </div>
+
+  <div class="term-window">
+    <div class="term-bar">
+      <span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span>
+      <span style="margin-left: 8px; font-size: 12px; color: var(--ink-3);">zsh — landriel.site</span>
+    </div>
+    <div class="term-body">
+      <div><span class="prompt">$</span> whoami</div>
+      <div class="hero-name" style="margin-top: 8px; font-size: 36px; font-weight: 800; color: var(--ink); letter-spacing: -.01em;">Agustín Landriel</div>
+      <div style="color: var(--b); font-size: 15.5px; margin-top: 4px;">DevOps / SysOps · Lanús, Buenos Aires, Argentina</div>
+
+      <div style="margin-top: 26px;"><span class="prompt">$</span> cat perfil.txt</div>
+      <p style="margin-top: 10px; color: var(--ink); font-size: 15px; max-width: 60ch;">
+        DevOps / SysOps con 4 años de experiencia en infraestructura híbrida (AWS, Huawei
+        y on-premise), automatización y pipelines de CI/CD. Infraestructura como código
+        con Terraform y despliegue de aplicaciones en Kubernetes.
+      </p>
+    </div>
+  </div>
+
+  <div class="cta-row" style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px;">
+    <a href="#experiencia" class="btn primary">Ver experiencia →</a>
+    <a href="https://github.com/AgustinLandriel" class="btn">GitHub</a>
+    <a href="https://linkedin.com/in/agustin-landriel" class="btn">LinkedIn</a>
+    <a href="#" class="btn">[Descargar CV]</a>
+  </div>
+</section>
+
+<section id="experiencia" class="wrap block">
+  <div class="section-head">
+    <div class="eyebrow">experiencia profesional</div>
+    <h2 class="section-title">$ cat experiencia.log</h2>
+  </div>
+
+  <div class="job-list">
+    <div class="card job-card">
+      <div class="job-head">
+        <div class="job-role">DevOps / SysOps <span class="sep">·</span> <span class="job-company">Lumina Americas</span></div>
+        <div class="job-dates">Marzo 2024 — Mayo 2026</div>
+      </div>
+      <ul class="job-bullets">
+        <li><b>Automatización y CI/CD:</b> diseño y mantenimiento de pipelines en Jenkins para aplicaciones Java, desde el checkout en SVN hasta la publicación del artefacto (EAR/WAR).</li>
+        <li><b>Seguridad y calidad (DevSecOps):</b> análisis continuo en Jenkins con SonarQube, OWASP Dependency-Check y ClamAV.</li>
+        <li><b>Infraestructura cloud y Linux:</b> soporte nivel 2/3 en AWS y Huawei Cloud, troubleshooting de incidencias críticas, runbooks en Confluence y seguimiento en Jira.</li>
+        <li><b>Middleware y bases de datos:</b> WebSphere, JBoss, WebLogic y Tomcat; administración de Oracle Database (backups, migración de esquemas, clonación de entornos).</li>
+      </ul>
+    </div>
+
+    <div class="card job-card">
+      <div class="job-head">
+        <div class="job-role">Analista de Seguridad Informática <span class="sep">·</span> <span class="job-company">TGV</span></div>
+        <div class="job-dates">Octubre 2023 — Marzo 2024</div>
+      </div>
+      <ul class="job-bullets">
+        <li><b>IAM:</b> ciclo de vida de usuarios, roles y perfiles para una entidad bancaria.</li>
+        <li><b>PAM:</b> administración y monitoreo de cuentas con privilegios elevados con BeyondTrust.</li>
+        <li><b>Seguridad híbrida:</b> gestión de accesos en Active Directory (Azure/on-premise) y consolas de AWS.</li>
+        <li><b>DevSecOps &amp; secret management:</b> carga y gestión de secrets en pipelines y aplicaciones.</li>
+      </ul>
+    </div>
+
+    <div class="card job-card">
+      <div class="job-head">
+        <div class="job-role">SysAdmin <span class="sep">·</span> <span class="job-company">ITPS One</span></div>
+        <div class="job-dates">Julio 2022 — Octubre 2023</div>
+      </div>
+      <ul class="job-bullets">
+        <li><b>Virtualización:</b> administración y despliegue de VMs con Proxmox/KVM.</li>
+        <li><b>Infraestructura Microsoft:</b> Azure Active Directory y ecosistema Office 365.</li>
+        <li><b>Servidores:</b> configuración, hardening y mantenimiento de Linux y Windows Server.</li>
+        <li><b>Monitoreo:</b> configuración y tuning de alertas en Zabbix.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="proyecto" class="wrap block">
+  <div class="section-head">
+    <div class="eyebrow">proyecto personal destacado</div>
+    <h2 class="section-title">voting-app — plataforma DevOps end-to-end</h2>
+    <p style="color: var(--ink-2); font-size: 13.5px; max-width: 68ch;">
+      App de votación en microservicios (Python/Flask, Node.js, Redis, PostgreSQL) desplegada
+      con ArgoCD — usada como excusa para construir todo lo que rodea a una app en producción real.
+      <a href="https://github.com/AgustinLandriel/voting-app-argocd">Ver repo →</a>
+    </p>
+  </div>
+
+  <div class="mod-grid">
+    <div class="card mod-card">
+      <div class="mod-num">01 · iac</div>
+      <div class="mod-title">Infraestructura como código</div>
+      <div class="mod-desc">VPC, subnets, security groups, RDS PostgreSQL 16, ElastiCache Redis, ECR y Secrets Manager. Módulos propios, estado remoto en S3, entornos dev/prod separados.</div>
+      <div class="mod-tags"><span class="tag">Terraform</span><span class="tag">AWS</span><span class="tag">S3 backend</span></div>
+    </div>
+
+    <div class="card mod-card">
+      <div class="mod-num">02 · ci/cd</div>
+      <div class="mod-title">Pipelines por servicio</div>
+      <div class="mod-desc">Build, push a ECR y actualización automática del repo de GitOps. Autenticación OIDC sin credenciales estáticas, roles IAM separados por permiso — apply detrás de aprobación manual.</div>
+      <div class="mod-tags"><span class="tag">GitHub Actions</span><span class="tag">OIDC</span></div>
+    </div>
+
+    <div class="card mod-card">
+      <div class="mod-num">03 · gitops</div>
+      <div class="mod-title">ArgoCD sincroniza, no el pipeline</div>
+      <div class="mod-desc">El pipeline solo commitea el tag de imagen nuevo. ArgoCD observa el repo y aplica — con selfHeal y prune, cualquier cambio manual al cluster se revierte solo.</div>
+      <div class="mod-tags"><span class="tag">ArgoCD</span><span class="tag">Kustomize</span></div>
+    </div>
+
+    <div class="card mod-card">
+      <div class="mod-num">04 · devsecops</div>
+      <div class="mod-title">Seguridad en cada etapa</div>
+      <div class="mod-desc">SCA de dependencias, escaneo de la imagen antes de subirla a ECR y SAST sobre los tres servicios en matriz. Secretos inyectados desde Secrets Manager, nunca versionados.</div>
+      <div class="mod-tags"><span class="tag">Snyk</span><span class="tag">Trivy</span><span class="tag">SonarQube</span></div>
+    </div>
+
+    <div class="card mod-card">
+      <div class="mod-num">05 · observabilidad</div>
+      <div class="mod-title">Métricas, logs y dashboards</div>
+      <div class="mod-desc">Manifiestos propios en vez de charts empaquetados, para entender cada pieza. Métricas de negocio instrumentadas en la app, tres dashboards provisionados desde git.</div>
+      <div class="mod-tags"><span class="tag">Prometheus</span><span class="tag">Grafana</span><span class="tag">Loki</span></div>
+    </div>
+
+    <div class="card mod-card">
+      <div class="mod-num">06 · ingress + tls</div>
+      <div class="mod-title">Certificado real, no self-signed</div>
+      <div class="mod-desc">nginx-ingress ruteando por host, cert-manager emitiendo contra Let's Encrypt vía DNS-01, expuesto a internet con Cloudflare Tunnel sobre dominio propio — TLS de punta a punta.</div>
+      <div class="mod-tags"><span class="tag">cert-manager</span><span class="tag">Let's Encrypt</span><span class="tag">Cloudflare</span></div>
+    </div>
+
+    <div class="card mod-card">
+      <div class="mod-num">07 · runners propios</div>
+      <div class="mod-title">CI corriendo en infraestructura propia</div>
+      <div class="mod-desc">Actions Runner Controller sobre Kubernetes, con una imagen de runner efímero custom — los pipelines no dependen de runners hosteados por GitHub.</div>
+      <div class="mod-tags"><span class="tag">ARC</span><span class="tag">Kubernetes</span></div>
+    </div>
+
+    <div class="card mod-card">
+      <div class="mod-num">08 · multi-entorno</div>
+      <div class="mod-title">El mismo despliegue, dos formas</div>
+      <div class="mod-desc">Mismo set de manifiestos corriendo sobre EKS y en minikube local para iterar rápido.</div>
+      <div class="mod-tags"><span class="tag">EKS</span><span class="tag">minikube</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="skills" class="wrap block">
+  <div class="section-head">
+    <div class="eyebrow">skills</div>
+    <h2 class="section-title">$ cat tecnologias.yaml</h2>
+  </div>
+
+  <div class="mod-grid">
+    <div class="card skill-group">
+      <div class="skill-title">Cloud</div>
+      <div class="skill-tags"><span class="tag">AWS</span><span class="tag">Huawei Cloud</span></div>
+    </div>
+    <div class="card skill-group">
+      <div class="skill-title">AWS</div>
+      <div class="skill-tags"><span class="tag">EC2</span><span class="tag">VPC</span><span class="tag">ALB</span><span class="tag">EKS</span><span class="tag">ECR</span><span class="tag">S3</span><span class="tag">RDS</span><span class="tag">IAM</span><span class="tag">SSM</span><span class="tag">CloudFront</span></div>
+    </div>
+    <div class="card skill-group">
+      <div class="skill-title">Contenedores</div>
+      <div class="skill-tags"><span class="tag">Docker</span><span class="tag">Kubernetes</span><span class="tag">K3s</span><span class="tag">Helm</span><span class="tag">Kustomize</span></div>
+    </div>
+    <div class="card skill-group">
+      <div class="skill-title">IaC &amp; Automatización</div>
+      <div class="skill-tags"><span class="tag">Terraform</span><span class="tag">Ansible</span><span class="tag">Bash</span><span class="tag">Python</span></div>
+    </div>
+    <div class="card skill-group">
+      <div class="skill-title">CI/CD</div>
+      <div class="skill-tags"><span class="tag">Jenkins</span><span class="tag">GitHub Actions</span></div>
+    </div>
+    <div class="card skill-group">
+      <div class="skill-title">GitOps</div>
+      <div class="skill-tags"><span class="tag">ArgoCD</span></div>
+    </div>
+    <div class="card skill-group">
+      <div class="skill-title">Secretos &amp; Identidad</div>
+      <div class="skill-tags"><span class="tag">AWS Secrets Manager</span><span class="tag">External Secrets Operator</span><span class="tag">OIDC</span><span class="tag">RBAC</span></div>
+    </div>
+    <div class="card skill-group">
+      <div class="skill-title">Seguridad (SAST/SCA)</div>
+      <div class="skill-tags"><span class="tag">OWASP Top 10</span><span class="tag">SonarQube</span><span class="tag">Snyk</span><span class="tag">Trivy</span></div>
+    </div>
+    <div class="card skill-group">
+      <div class="skill-title">Observabilidad</div>
+      <div class="skill-tags"><span class="tag">Prometheus</span><span class="tag">Grafana</span><span class="tag">Loki</span><span class="tag">Promtail</span><span class="tag">Zabbix</span></div>
+    </div>
+    <div class="card skill-group">
+      <div class="skill-title">Colaboración</div>
+      <div class="skill-tags"><span class="tag">Git</span><span class="tag">GitHub</span><span class="tag">Jira</span><span class="tag">Confluence</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="educacion" class="wrap block">
+  <div class="section-head">
+    <div class="eyebrow">educación y certificaciones</div>
+    <h2 class="section-title">$ cat educacion.log</h2>
+  </div>
+
+  <div class="mod-grid">
+    <div class="card" style="padding: 22px;">
+      <div class="skill-title">Educación</div>
+      <ul class="cert-list">
+        <li><b>Tecnicatura en Soporte de Infraestructura</b><br>ISTEA · 2026 – presente (finalización estimada 2028)</li>
+      </ul>
+    </div>
+    <div class="card" style="padding: 22px;">
+      <div class="skill-title">Cursos / Certificaciones</div>
+      <ul class="cert-list">
+        <li><b>Cloud DevOps, Administrador Linux y Operador Linux</b><br>Educación IT</li>
+        <li><b>CCNA 1 &amp; 2</b><br>Cisco Networking Academy · Fundación Proydesa</li>
+        <li><b>AWS Cloud Practitioner</b><br>Amazon Web Services</li>
+        <li><b>Claude Code in Action</b><br>Anthropic</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="contacto" class="wrap block" style="padding-bottom: 96px;">
+  <div class="card term-window" style="max-width: 640px;">
+    <div class="term-bar">
+      <span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span>
+      <span style="margin-left: 8px; font-size: 12px; color: var(--ink-3);">contacto</span>
+    </div>
+    <div class="term-body" style="display: flex; flex-direction: column; gap: 14px;">
+      <div><span class="prompt">$</span> cat contacto.txt</div>
+      <div style="display: flex; flex-direction: column; gap: 10px; font-size: 14px;">
+        <div>github &nbsp;&nbsp;<a href="https://github.com/AgustinLandriel">github.com/AgustinLandriel</a></div>
+        <div>linkedin &nbsp;<a href="https://linkedin.com/in/agustin-landriel">linkedin.com/in/agustin-landriel</a></div>
+        <div>email &nbsp;&nbsp;&nbsp;&nbsp;<a href="mailto:al.landriel20@gmail.com">al.landriel20@gmail.com</a></div>
+        <div>cv &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#">[Descargar CV]</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  landriel.site — Agustín Landriel, 2026
+</footer>
+
+</body>
+</html>
