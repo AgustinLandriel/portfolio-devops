@@ -1,0 +1,19 @@
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# terraform.tfvars queda SIN ignorar a proposito: no tiene nada sensible
+# (solo aws_region), y sirve para que el repo quede reproducible tal cual.
+
+# Editor / SO
+.DS_Store
+.vscode/
